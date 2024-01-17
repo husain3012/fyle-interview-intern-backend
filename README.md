@@ -57,3 +57,26 @@ pytest --cov
 # Or use the bash file
 bash htmlcov.sh
 ```
+
+
+### Docker
+
+Using Dockerfile
+
+```
+docker build -t fyle-backend-challenge .
+docker run -p 7755:7755 fyle-backend-challenge
+```
+
+Using docker-compose
+
+```
+docker-compose up
+```
+
+To use persistent storage, uncomment the volumes section in docker-compose.yml
+
+```yaml
+volumes:
+    - ./core/store.sqlite3:/path/to/store.sqlite3
+```

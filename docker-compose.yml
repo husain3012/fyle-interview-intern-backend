@@ -1,8 +1,14 @@
-# docker-compose.yaml
 version: '3'
 
 services:
+
   web:
-    build: '.'
+    container_name: fyle-backend
+    build: .
     ports:
-      - '7755:7755'
+      - "7755:7755"
+    # To persist the database, uncomment the following block
+    # volumes:
+      # - ./core/store.sqlite3:/path/to/store.sqlite3
+
+
