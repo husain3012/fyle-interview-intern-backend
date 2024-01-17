@@ -55,5 +55,5 @@ pytest --cov
 # open htmlcov/index.html
 
 # Or use the bash file
-bash coverage.sh
+bash htmlcov.sh
 ```
