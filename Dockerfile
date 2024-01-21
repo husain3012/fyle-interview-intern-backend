@@ -1,29 +1,49 @@
-# start by pulling the python image
-FROM python:3.10.1-slim
+# syntax=docker/dockerfile:1
 
-RUN apt-get update && apt-get install build-essential -y
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Dockerfile reference guide at
+# https://docs.docker.com/engine/reference/builder/
 
-# copy the requirements file into the image
-COPY ./requirements.txt /app/requirements.txt
+ARG PYTHON_VERSION=3.10
+FROM python:${PYTHON_VERSION}-slim as base
 
-# switch working directory
+# Prevents Python from writing pyc files.
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Keeps Python from buffering stdout and stderr to avoid situations where
+# the application crashes without emitting any logs due to buffering.
+ENV PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-# install the dependencies and packages in the requirements file
-RUN pip install --no-cache-dir -r requirements.txt
+# Create a non-privileged user that the app will run under.
+# See https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#user
+ARG UID=10001
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "/nonexistent" \
+    --shell "/sbin/nologin" \
+    --no-create-home \
+    --uid "${UID}" \
+    appuser
 
-# copy every content from the local file to the image
-COPY . /app
+# Download dependencies as a separate step to take advantage of Docker's caching.
+# Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
+# Leverage a bind mount to requirements.txt to avoid having to copy them into
+# into this layer.
+RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=bind,source=requirements.txt,target=requirements.txt \
+    python -m pip install -r requirements.txt
 
-RUN FLASK_APP=core/server.py flask db upgrade -d core/migrations/
+# Switch to the non-privileged user to run the application.
+USER appuser
 
-RUN chmod +x run.sh
+# Copy the source code into the container.
+COPY . .
 
-# run tests
-RUN python -m pytest
+# Expose the port that the application listens on.
+EXPOSE 7755
 
-# configure the container to run in an executed manner
-ENTRYPOINT ["./run.sh"]
-
-
-CMD ["bash"]
+# Run the application.
+CMD gunicorn -c gunicorn_config.py core.server:app
