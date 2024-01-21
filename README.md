@@ -73,10 +73,3 @@ Using docker-compose
 ```
 docker-compose up
 ```
-
-To use persistent storage, uncomment the volumes section in docker-compose.yml
-
-```yaml
-volumes:
-    - ./core/store.sqlite3:/path/to/store.sqlite3
-```

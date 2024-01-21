@@ -4,7 +4,3 @@ services:
       context: .
     ports:
       - 7755:7755
-    # volumes:
-    #   - ./core/store.sqlite3:/path/to/store.sqlite3
-
-
