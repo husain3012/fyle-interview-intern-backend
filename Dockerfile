@@ -15,8 +15,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # copy every content from the local file to the image
 COPY . /app
 
-
-RUN rm core/store.sqlite3
 RUN FLASK_APP=core/server.py flask db upgrade -d core/migrations/
 
 RUN chmod +x run.sh
